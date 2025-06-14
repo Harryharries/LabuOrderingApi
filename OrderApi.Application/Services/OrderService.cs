@@ -1,5 +1,6 @@
 ﻿using eCommerce.SharedLibrary.Interface;
 using OrderApi.Application.DTOs;
+using OrderApi.Application.DTOs.Conversions;
 using OrderApi.Application.Interfaces;
 using OrderApi.Domain.Entity;
 using Polly;
@@ -16,7 +17,7 @@ namespace OrderApi.Application.Services
             var getProductById = await httpClient.GetAsync($"/api/Product/{productId}");
             if (!getProductById.IsSuccessStatusCode)
             {
-                return null;
+                return null!;
             }
             var product = await getProductById.Content.ReadFromJsonAsync<ProductDTO>();
             return product!;
@@ -27,14 +28,21 @@ namespace OrderApi.Application.Services
             var getAppUserById = await httpClient.GetAsync($"/api/AppUser/{appUserId}");
             if (!getAppUserById.IsSuccessStatusCode)
             {
-                return null;
+                return null!;
             }
             var appUser = await getAppUserById.Content.ReadFromJsonAsync<AppUserDTO>();
             return appUser!;
         }
-        public Task<IEnumerable<OrderDTO>> GetOrderByClientIdAsync(int clientId)
+        public async Task<IEnumerable<OrderDTO>> GetOrderByClientIdAsync(int clientId)
         {
-            throw new NotImplementedException();
+            var orders = await orderInterface.GetAllOrdersAsync(p => p.ClientId == clientId);
+            if (!orders.Any())
+            {
+                return null!;
+            }
+
+            var (_, _orders) = OrderConversion.FromEntity(null!, orders);
+            return _orders!;
         }
 
         public async Task<OrderDetailsDTO> GetOrderDetailsAsync(int orderId)
@@ -42,7 +50,7 @@ namespace OrderApi.Application.Services
             var order = await orderInterface.FindByIdAsync(orderId);
             if (order is null)
             {
-                return null;
+                return null!;
             }
             var retryPipeline = resiliencePipeline.GetPipeline("my-retry-pipeline");
 

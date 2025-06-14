@@ -7,6 +7,6 @@ namespace OrderApi.Application.Interfaces
 {
     public interface IOrder : IGernericInterface<Order>
     {
-        Task<IEnumerable<OrderDTO>> GetAllOrdersAsync(Expression<Func<Order, bool>> predicate);
+        Task<IEnumerable<Order>> GetAllOrdersAsync(Expression<Func<Order, bool>> predicate);
     }
 }
