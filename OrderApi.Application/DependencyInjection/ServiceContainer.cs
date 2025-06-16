@@ -14,13 +14,16 @@ namespace OrderApi.Application.DependencyInjection
         {
             services.AddHttpClient<IOrderService, OrderService>(client =>
             {
-                client.BaseAddress = new Uri(configuration["ApiGateway: BaseAddress"]!);
+                client.BaseAddress = new Uri(configuration["ApiGateway:BaseAddress"]!);
                 client.Timeout = TimeSpan.FromSeconds(10);
             });
             
             var retryPolicy = new RetryStrategyOptions()
             {
-                ShouldHandle = new PredicateBuilder().Handle<TaskCanceledException>(),
+                ShouldHandle = new PredicateBuilder()
+                .Handle<TaskCanceledException>()
+                .Handle<HttpRequestException>() // Network failures
+                .Handle<TimeoutException>(), 
                 BackoffType = DelayBackoffType.Constant,
                 MaxRetryAttempts = 3,
                 UseJitter = true,
