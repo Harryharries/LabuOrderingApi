@@ -4,11 +4,11 @@ namespace OrderApi.Application.DTOs
 {
     public record AppUserDTO(
         int Id,
-        [Required] string Name,
+        [Required] string UserName,
         [Required, DataType(DataType.EmailAddress)] string Email,
         [Required] string Address,
         [Required] string City,
-        [Required] string State,
+        [Required] string Province,
         [Required] string ZipCode,
         [Required] string Country,
         [Required] string PhoneNumber,
